@@ -2,17 +2,18 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/home/med/.oh-my-zsh"
+export ZSH="/Users/medmouine/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="agnoster"
-
+ZSH_THEME="dst"
+autoload -Uz compinit
+compinit
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in ~/.oh-my-zsh/themes/
+# a theme from this variable instead of looking in $ZSH/themes/
 # If set to an empty array, this variable will have no effect.
 # ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
 
@@ -33,7 +34,7 @@ ZSH_THEME="agnoster"
 # export UPDATE_ZSH_DAYS=13
 
 # Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS=true
+# DISABLE_MAGIC_FUNCTIONS="true"
 
 # Uncomment the following line to disable colors in ls.
 # DISABLE_LS_COLORS="true"
@@ -45,6 +46,8 @@ ZSH_THEME="agnoster"
 # ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
+# Caution: this setting can cause issues with multiline prompts (zsh 5.7.1 and newer seem to work)
+# See https://github.com/ohmyzsh/ohmyzsh/issues/5765
 # COMPLETION_WAITING_DOTS="true"
 
 # Uncomment the following line if you want to disable marking untracked files
@@ -64,36 +67,24 @@ ZSH_THEME="agnoster"
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
 # Which plugins would you like to load?
-# Standard plugins can be found in ~/.oh-my-zsh/plugins/*
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
+# Standard plugins can be found in $ZSH/plugins/
+# Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-  zsh-autosuggestions
-  z
-  sudo
-  vscode
-  ansible
-  kubectl
-  git
-  dotenv
-  colorize
-  colored-man-pages
-  command-not-found
-  compleat
-  copydir
-  copyfile
-  cp
-  per-directory-history
-  screen
-  docker
-  golang
-  lein
-  mix
-  nvm
-  archlinux
-  battery
-  emoji-clock
+	git
+	git-flow
+	brew
+	history
+	node
+	npm
+	zsh-syntax-highlighting
+	zsh-autosuggestions
+	yarn-autocompletions
+	kubectl
+	dotenv
+	docker
+	docker-compose
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -123,25 +114,57 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-export PATH=/home/linuxbrew/.linuxbrew/bin:$PATH
+source /Users/medmouine/tmp/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
+eval "$(starship init zsh)"
+
+alias rszsh="source ~/.zshrc"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+alias k=kubectl
+complete -F __start_kubectl k
+source <(kubectl completion zsh)
+source <(k3d completion zsh)
+source <(helm completion zsh)
+
+fpath=(~/.zsh/completion $fpath)
+rm -f ~/.zcompdump;
+compinit
+
+export PATH="$HOME/.jenv/bin:$PATH"
+eval "$(jenv init -)"
+
+### Added by Zinit's installer
+if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
+    print -P "%F{33}▓▒░ %F{220}Installing %F{33}DHARMA%F{220} Initiative Plugin Manager (%F{33}zdharma/zinit%F{220})…%f"
+    command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
+    command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
+        print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
+        print -P "%F{160}▓▒░ The clone has failed.%f%b"
+fi
+
+source "$HOME/.zinit/bin/zinit.zsh"
+autoload -Uz _zinit
+(( ${+_comps} )) && _comps[zinit]=_zinit
+### End of Zinit's installer chunk
+
+zinit ice atload"zpcdreplay" atclone'./zplug.zsh'
+zinit light g-plane/zsh-yarn-autocompletions
+zstyle ':completion:*:*:make:*' tag-order 'targets'
+
+autoload -U compinit && compinit
+
+# opam configuration
+[[ ! -r /Users/medmouine/.opam/opam-init/init.zsh ]] || source /Users/medmouine/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
 
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f '/home/med/Documents/google-cloud-sdk/path.zsh.inc' ]; then . '/home/med/Documents/google-cloud-sdk/path.zsh.inc'; fi
+if [ -f '/Users/medmouine/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/medmouine/Downloads/google-cloud-sdk/path.zsh.inc'; fi
 
 # The next line enables shell command completion for gcloud.
-if [ -f '/home/med/Documents/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/med/Documents/google-cloud-sdk/completion.zsh.inc'; fi
-export GOOGLE_CLOUD_KEYFILE_JSON=$HOME/.gcpconf/credentials/tf/medmouine-cluster-de1140b8e0e0.json
-export ANDROID_SDK_PATH=$HOME/Android/Sdk
-export ANDROID_SDK_ROOT=$HOME/Android/Sdk
-export ANDROID_NDK_PATH=$HOME/Android/Sdk/ndk-bundle
+if [ -f '/Users/medmouine/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/medmouine/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
 
-export PATH="$PATH:$ANDROID_SDK_ROOT/emulator:$ANDROID_SDK_ROOT/tools:ANDROID_SDK_ROOT/platform-tools"
-
-export PATH=$HOME/.cargo/bin:$PATH
-export RUST_SRC_PATH=$(rustc --print sysroot)/lib/rustlib/src/rust/src
-
-export WASMTIME_HOME="$HOME/.wasmtime"
-
-export PATH="$WASMTIME_HOME/bin:$PATH"
-
-[ -f "${GHCUP_INSTALL_BASE_PREFIX:=$HOME}/.ghcup/env" ] && source "${GHCUP_INSTALL_BASE_PREFIX:=$HOME}/.ghcup/env"
+export PATH="$HOME/.deno/bin:$PATH"
